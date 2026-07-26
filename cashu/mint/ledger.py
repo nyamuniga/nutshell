@@ -794,18 +794,24 @@ class Ledger(
                 f"Maximum melt amount is {settings.mint_max_melt_bolt11_sat} sat."
             )
 
-        # We assume that the request is a bolt11 invoice, this works since we
-        # support only the bol11 method for now.
-        invoice_obj = bolt11.decode(melt_quote.request)
-        if not invoice_obj.amount_msat:
-            raise TransactionError("invoice has no amount.")
-        # we set the expiry of this quote to the expiry of the bolt11 invoice
         now = int(time.time())
         expiry = None
-        if settings.melt_quote_ttl is not None:
-            expiry = now + settings.melt_quote_ttl
-        elif invoice_obj.expiry is not None:
-            expiry = invoice_obj.date + invoice_obj.expiry
+        if request.startswith("momo:"):
+            if settings.melt_quote_ttl is not None:
+                expiry = now + settings.melt_quote_ttl
+            else:
+                expiry = now + 3600
+        else:
+            # We assume that the request is a bolt11 invoice, this works since we
+            # support only the bol11 method for now.
+            invoice_obj = bolt11.decode(melt_quote.request)
+            if not invoice_obj.amount_msat:
+                raise TransactionError("invoice has no amount.")
+            # we set the expiry of this quote to the expiry of the bolt11 invoice
+            if settings.melt_quote_ttl is not None:
+                expiry = now + settings.melt_quote_ttl
+            elif invoice_obj.expiry is not None:
+                expiry = invoice_obj.date + invoice_obj.expiry
 
         quote = MeltQuote(
             quote=generate_uuid_v7(),
@@ -983,10 +989,10 @@ class Ledger(
 
         # verify amounts from bolt11 invoice
         bolt11_request = melt_quote.request
-        invoice_obj = bolt11.decode(bolt11_request)
-
-        if not invoice_obj.amount_msat:
-            raise TransactionError("invoice has no amount.")
+        if not bolt11_request.startswith("momo:"):
+            invoice_obj = bolt11.decode(bolt11_request)
+            if not invoice_obj.amount_msat:
+                raise TransactionError("invoice has no amount.")
         if not mint_quote.amount == melt_quote.amount:
             raise TransactionError("amounts do not match")
         if not bolt11_request == mint_quote.request:

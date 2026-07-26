@@ -728,6 +728,7 @@ class Unit(Enum):
     usd = 2
     eur = 3
     btc = 4
+    rwf = 5
     auth = 999
 
     def str(self, amount: int | float) -> str:
@@ -741,6 +742,8 @@ class Unit(Enum):
             return f"{amount / 100:.2f} EUR"
         elif self == Unit.btc:
             return f"{amount / 1e8:.8f} BTC"
+        elif self == Unit.rwf:
+            return f"{amount} RWF"
         elif self == Unit.auth:
             return f"{amount} AUTH"
         else:

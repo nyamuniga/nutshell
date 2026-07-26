@@ -113,6 +113,7 @@ class MintBackends(MintSettings):
     mint_backend_bolt11_msat: str = Field(default="")
     mint_backend_bolt11_usd: str = Field(default="")
     mint_backend_bolt11_eur: str = Field(default="")
+    mint_backend_bolt11_rwf: str = Field(default="")
 
     mint_lnbits_endpoint: Optional[str] = Field(default=None)
     mint_lnbits_key: Optional[str] = Field(default=None)
