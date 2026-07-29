@@ -57,12 +57,13 @@ class FakeWallet(LightningBackend):
         32,
     ).hex()
 
-    supported_units = {Unit.sat, Unit.msat, Unit.usd, Unit.eur}
+    supported_units = {Unit.sat, Unit.msat, Unit.usd, Unit.eur, Unit.rwf}
     balance: Dict[Unit, Amount] = {
         Unit.sat: Amount(Unit.sat, settings.fakewallet_balance_sat),
         Unit.msat: Amount(Unit.msat, settings.fakewallet_balance_sat * 1000),
         Unit.usd: Amount(Unit.usd, settings.fakewallet_balance_usd),
         Unit.eur: Amount(Unit.eur, settings.fakewallet_balance_eur),
+        Unit.rwf: Amount(Unit.rwf, settings.fakewallet_balance_eur),
     }
 
     supports_incoming_payment_stream: bool = True
@@ -96,7 +97,7 @@ class FakeWallet(LightningBackend):
         amount = int(amount_bolt11)
         if self.unit == Unit.sat:
             amount = amount // 1000
-        elif self.unit == Unit.usd or self.unit == Unit.eur:
+        elif self.unit == Unit.usd or self.unit == Unit.eur or self.unit == Unit.rwf:
             amount = math.ceil(amount / 1e9 * self.fake_btc_price)
         elif self.unit == Unit.msat:
             amount = amount
@@ -166,7 +167,7 @@ class FakeWallet(LightningBackend):
             amount_msat = MilliSatoshi(amount.to(Unit.msat, round="up").amount)
         elif self.unit == Unit.msat:
             amount_msat = MilliSatoshi(amount.amount)
-        elif self.unit == Unit.usd or self.unit == Unit.eur:
+        elif self.unit == Unit.usd or self.unit == Unit.eur or self.unit == Unit.rwf:
             amount_msat = MilliSatoshi(
                 math.ceil(amount.amount / self.fake_btc_price * 1e9)
             )
@@ -266,7 +267,7 @@ class FakeWallet(LightningBackend):
             fees_msat = fee_reserve(amount_msat)
             fees = Amount(unit=Unit.msat, amount=fees_msat)
             amount = Amount(unit=Unit.msat, amount=amount_msat)
-        elif self.unit == Unit.usd or self.unit == Unit.eur:
+        elif self.unit == Unit.usd or self.unit == Unit.eur or self.unit == Unit.rwf:
             amount_usd = math.ceil(invoice_obj.amount_msat / 1e9 * self.fake_btc_price)
             amount = Amount(unit=self.unit, amount=amount_usd)
             fees = Amount(unit=self.unit, amount=2)

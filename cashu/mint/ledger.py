@@ -366,9 +366,9 @@ class Ledger(
         # get invoice expiry time
         invoice_obj = bolt11.decode(invoice_response.payment_request)
 
-        # NOTE: we normalize the request to lowercase to avoid case sensitivity
-        # This works with Lightning but might not work with other methods
-        request = invoice_response.payment_request.lower()
+        # NOTE: we normally normalize the request to lowercase to avoid case sensitivity
+        # However, for our custom MomoWallet, we need case-sensitive requests
+        request = invoice_response.payment_request
 
         now = int(time.time())
         expiry = None
@@ -676,7 +676,7 @@ class Ledger(
         )
         # NOTE: we normalize the request to lowercase to avoid case sensitivity
         # This works with Lightning but might not work with other methods
-        request = melt_quote.request.lower()
+        request = melt_quote.request
 
         if not request == mint_quote.request:
             raise TransactionError("bolt11 requests do not match")
@@ -761,7 +761,7 @@ class Ledger(
 
         # NOTE: we normalize the request to lowercase to avoid case sensitivity
         # This works with Lightning but might not work with other methods
-        request = melt_quote.request.lower()
+        request = melt_quote.request
 
         # check if there is a mint quote with the same payment request
         # so that we would be able to handle the transaction internally
